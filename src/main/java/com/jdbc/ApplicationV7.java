@@ -19,7 +19,7 @@ public class ApplicationV7 {
 
     private static DataSource createDataSource() {
         HikariDataSource ds = new HikariDataSource();
-        ds.setJdbcUrl("jdbc:h2:~/mydatabase;INIT=RUNSCRIPT FROM 'classpath:schema.sql");
+        ds.setJdbcUrl("jdbc:h2:~/mydatabase;INIT=RUNSCRIPT FROM 'classpath:schema.sql'");
         ds.setUsername("sa");
         ds.setPassword("s3cr3tPassword");
         return ds;
