@@ -23,6 +23,8 @@ public class ApplicationV9 {
 
                 stmt.addBatch();
 
+                // stmt.clearParameters();
+
                 stmt.setString(1, "[Some Other FirstName]");
                 stmt.setString(2, "[Some Other LastName]");
                 stmt.setObject(3, LocalDateTime.now());
