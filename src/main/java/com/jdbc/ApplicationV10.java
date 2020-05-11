@@ -20,10 +20,11 @@ public class ApplicationV10 {
 
                 ResultSet resultSet = stmt.executeQuery();
                 while (resultSet.next()) {
-                    Integer id = resultSet.getInt("id");
+                    int id = resultSet.getInt("id");
                     String firstName = resultSet.getString("first_name");
                     String lastName = resultSet.getString("last_name");
                     LocalDateTime registrationDate = resultSet.getObject("registration_date", LocalDateTime.class);
+
                     System.out.println("Found user: " + id + " | " +  firstName + " | " + lastName + " | " + registrationDate);
                 }
             }
