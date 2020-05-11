@@ -21,7 +21,9 @@ public class ApplicationV11 {
 
                 stmt.setString(1,"-yay!");
                 stmt.setInt(2,5);
+
                 int updatedRows = stmt.executeUpdate();
+
                 System.out.println("I just updated " + updatedRows + " rows");
             }
 
