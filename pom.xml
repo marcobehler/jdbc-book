@@ -26,5 +26,13 @@
             <artifactId>HikariCP</artifactId>
             <version>3.4.3</version>
         </dependency>
+
+        <!-- https://mvnrepository.com/artifact/net.ttddyy/datasource-proxy -->
+        <dependency>
+            <groupId>net.ttddyy</groupId>
+            <artifactId>datasource-proxy</artifactId>
+            <version>1.6</version>
+        </dependency>
+
     </dependencies>
 </project>

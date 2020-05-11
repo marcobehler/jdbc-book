@@ -27,7 +27,7 @@ public class ApplicationV12 {
 
 
                 // depending on your database driver and configuration,
-                // this will return the same / a cached preparedstatem[ent
+                // this will return the same / a cached preparedstatement
             }
 
         }
