@@ -21,6 +21,22 @@ public class ApplicationV14 {
             int transactionId = sendMoney(connection, senderId, receiverId, 50);
             System.out.println("Created users with senderId=" +senderId + ",receiverId=" + receiverId + " and transaction with id = " + transactionId);
         }
+
+        // vs
+
+        try (Connection connection = ds.getConnection()) {
+            connection.setAutoCommit(false);
+
+            int senderId = createUser(connection);
+            int receiverId = createUser(connection);
+            int transactionId = sendMoney(connection, senderId, receiverId, 50);
+
+            connection.commit();
+
+            System.out.println("Created users with senderId=" +senderId + ",receiverId=" + receiverId + " and transaction with id = " + transactionId);
+        } catch (SQLException e) {
+            // next chapter: rollback
+        }
     }
 
     private static int createUser(Connection connection) throws SQLException {
