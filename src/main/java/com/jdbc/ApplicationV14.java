@@ -19,7 +19,7 @@ public class ApplicationV14 {
             int senderId = createUser(connection);
             int receiverId = createUser(connection);
             int transactionId = sendMoney(connection, senderId, receiverId, 50);
-            System.out.println("Created users with ids => " + Arrays.toString(new int[]{senderId, receiverId}) + " and transaction with id = " + transactionId);
+            System.out.println("Created users with senderId=" +senderId + ",receiverId=" + receiverId + " and transaction with id = " + transactionId);
         }
     }
 
