@@ -16,15 +16,13 @@ public class ApplicationV17 {
 
         Connection connection = ds.getConnection();
 
-        Savepoint savepoint;
-
         try (connection) {
             connection.setAutoCommit(false);
 
             int senderId = createUser(connection);
             int receiverId = createUser(connection);
 
-            savepoint = connection.setSavepoint();
+            Savepoint savepoint = connection.setSavepoint();
 
             int transactionId = sendMoney(connection, senderId, receiverId, 50);
             if (transactionId < 0) connection.rollback(savepoint);
