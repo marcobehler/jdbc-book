@@ -19,12 +19,15 @@ public class ApplicationV14 {
             int senderId = createUser(connection);
             int receiverId = createUser(connection);
             int transactionId = sendMoney(connection, senderId, receiverId, 50);
-            System.out.println("Created users with senderId=" +senderId + ",receiverId=" + receiverId + " and transaction with id = " + transactionId);
+            System.out.println("Created users with senderId=" + senderId + "," +
+                    "receiverId=" + receiverId + " and transaction with id = " + transactionId);
         }
     }
 
     private static int createUser(Connection connection) throws SQLException {
-        try (PreparedStatement stmt = connection.prepareStatement("insert into users (first_name, last_name, registration_date) values (?,?,?)"
+        try (PreparedStatement stmt = connection.prepareStatement("insert into " +
+                        "users (first_name, last_name, registration_date) values " +
+                        "(?,?,?)"
                 , Statement.RETURN_GENERATED_KEYS)) {
             stmt.setString(1, "[Some FirstName]");
             stmt.setString(2, "[Some LastName]");
@@ -37,20 +40,24 @@ public class ApplicationV14 {
         }
     }
 
-    private static int sendMoney(Connection connection, int senderId, int receiverId, int amount) throws SQLException {
-        try (PreparedStatement stmt = connection.prepareStatement("update users set balance = (balance - ?) where id = ?")) {
+    private static int sendMoney(Connection connection, int senderId,
+                                 int receiverId, int amount) throws SQLException {
+        try (PreparedStatement stmt = connection.prepareStatement("update users " +
+                "set balance = (balance - ?) where id = ?")) {
             stmt.setInt(1, amount);
             stmt.setInt(2, senderId);
             stmt.executeUpdate();
         }
 
-        try (PreparedStatement stmt = connection.prepareStatement("update users set balance = (balance + ?) where id = ?")) {
+        try (PreparedStatement stmt = connection.prepareStatement("update users " +
+                "set balance = (balance + ?) where id = ?")) {
             stmt.setInt(1, amount);
             stmt.setInt(2, receiverId);
             stmt.executeUpdate();
         }
 
-        try (PreparedStatement stmt = connection.prepareStatement("insert into transactions (sender, receiver, amount) values (?,?,?)"
+        try (PreparedStatement stmt = connection.prepareStatement("insert into " +
+                        "transactions (sender, receiver, amount) values (?,?,?)"
                 , Statement.RETURN_GENERATED_KEYS)) {
             stmt.setInt(1, senderId);
             stmt.setInt(2, receiverId);
@@ -65,7 +72,8 @@ public class ApplicationV14 {
 
     private static DataSource createDataSource() {
         HikariDataSource ds = new HikariDataSource();
-        ds.setJdbcUrl("jdbc:h2:~/mydatabase;INIT=RUNSCRIPT FROM 'classpath:schema.sql'");
+        ds.setJdbcUrl("jdbc:h2:~/mydatabase;INIT=RUNSCRIPT FROM 'classpath:schema" +
+                ".sql'");
         ds.setUsername("sa");
         ds.setPassword("s3cr3tPassword");
 
