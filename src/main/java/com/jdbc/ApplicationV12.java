@@ -16,13 +16,17 @@ public class ApplicationV12 {
 
         try (Connection connection = ds.getConnection()) {
 
-            try (PreparedStatement stmt = connection.prepareStatement("insert into users (first_name, last_name, registration_date) values (?,?,?)"
-                                                    , Statement.RETURN_GENERATED_KEYS)) {
+            try (PreparedStatement stmt = connection.prepareStatement("insert into" +
+                            " users (first_name, last_name, registration_date) " +
+                            "values (?,?,?)"
+                    , Statement.RETURN_GENERATED_KEYS)) {
 
 
             }
 
-            try (PreparedStatement stmt = connection.prepareStatement("insert into users (first_name, last_name, registration_date) values (?,?,?)"
+            try (PreparedStatement stmt = connection.prepareStatement("insert into" +
+                            " users (first_name, last_name, registration_date) " +
+                            "values (?,?,?)"
                     , Statement.RETURN_GENERATED_KEYS)) {
 
 
@@ -35,7 +39,8 @@ public class ApplicationV12 {
 
     private static DataSource createDataSource() {
         HikariDataSource ds = new HikariDataSource();
-        ds.setJdbcUrl("jdbc:h2:~/mydatabase;INIT=RUNSCRIPT FROM 'classpath:schema.sql'");
+        ds.setJdbcUrl("jdbc:h2:~/mydatabase;INIT=RUNSCRIPT FROM 'classpath:schema" +
+                ".sql'");
         ds.setUsername("sa");
         ds.setPassword("s3cr3tPassword");
         return ds;

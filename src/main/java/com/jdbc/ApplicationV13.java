@@ -18,8 +18,9 @@ public class ApplicationV13 {
 
         try (Connection connection = ds.getConnection()) {
 
-            try (PreparedStatement stmt = connection.prepareStatement("select * from users where id > ?")) {
-                stmt.setInt(1,5);
+            try (PreparedStatement stmt = connection
+                    .prepareStatement("select * from users where id > ?")) {
+                stmt.setInt(1, 5);
 
                 ResultSet resultSet = stmt.executeQuery();
                 while (resultSet.next()) {
@@ -33,7 +34,8 @@ public class ApplicationV13 {
 
     private static DataSource createDataSource() {
         HikariDataSource ds = new HikariDataSource();
-        ds.setJdbcUrl("jdbc:h2:~/mydatabase;INIT=RUNSCRIPT FROM 'classpath:schema.sql'");
+        ds.setJdbcUrl("jdbc:h2:~/mydatabase;INIT=RUNSCRIPT FROM 'classpath:schema" +
+                ".sql'");
         ds.setUsername("sa");
         ds.setPassword("s3cr3tPassword");
 
