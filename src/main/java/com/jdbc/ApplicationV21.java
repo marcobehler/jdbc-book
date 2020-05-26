@@ -14,33 +14,26 @@ public class ApplicationV21 {
     public static void main(String[] args) throws SQLException {
         // database locking
 
-        int senderId = createUser();  // default balance = 100
-        int receiverId = createUser(); // default balance = 100
+        int senderId = createUser();
+        int receiverId = createUser();
 
         Connection connection = ds.getConnection();
         try (connection) {
             connection.setAutoCommit(false);
-            int transactionId = sendMoney(connection, senderId, receiverId, 50,
-                    () -> {
-                        try {
-                            Connection connection2 = ds.getConnection();
-                            try (connection2) {
-                                connection2.setAutoCommit(false);
-                                int transactionId1 = sendMoney(connection2,
-                                        senderId, receiverId, 19, () -> {});
-                                connection2.commit();
-                            } catch (SQLException e) {
-                                connection2.rollback();
-                            }
-                        } catch (SQLException e) {
-                            e.printStackTrace();
-                        }
-                    });
+            int transactionId = sendMoney(connection, senderId, receiverId, 50);
             connection.commit();
         } catch (SQLException e) {
             connection.rollback();
         }
 
+        Connection connection2 = ds.getConnection();
+        try (connection2) {
+            connection2.setAutoCommit(false);
+            int transactionId = sendMoney(connection2, senderId, receiverId, 19);
+            connection2.commit();
+        } catch (SQLException e) {
+            connection2.rollback();
+        }
 
         int senderBalance = getBalance(senderId);
         System.out.println("senderBalance = " + senderBalance);
@@ -86,8 +79,7 @@ public class ApplicationV21 {
     }
 
     private static int sendMoney(Connection connection, int senderId,
-                                 int receiverId, int amount,
-                                 Runnable parallelAction) throws SQLException {
+                                 int receiverId, int amount) throws SQLException {
         try (PreparedStatement stmt = connection.prepareStatement("update users " +
                 "set balance = (balance - ?) where id = ?")) {
             stmt.setInt(1, amount);
@@ -101,8 +93,6 @@ public class ApplicationV21 {
             stmt.setInt(2, receiverId);
             stmt.executeUpdate();
         }
-
-        parallelAction.run();
 
         try (PreparedStatement stmt = connection.prepareStatement("insert into " +
                         "transactions (sender, receiver, amount) values (?,?,?)"

@@ -7,63 +7,69 @@ import javax.sql.DataSource;
 import java.sql.*;
 import java.time.LocalDateTime;
 
-public class ApplicationV20 {
+public class ApplicationV22 {
+
+    private static DataSource ds = createDataSource();
 
     public static void main(String[] args) throws SQLException {
-        // read uncommitted
+        // database locking
 
-        DataSource ds = createDataSource();
+        int senderId = createUser();  // default balance = 100
+        int receiverId = createUser(); // default balance = 100
 
-        int senderId = -1;
-        int receiverId = -1;
-
-        Connection connection1 = ds.getConnection();
-        try (connection1) {
-            connection1.setAutoCommit(false);
-
-            senderId = createUser(connection1);
-            receiverId = createUser(connection1);
-
-            connection1.commit();
+        Connection connection = ds.getConnection();
+        try (connection) {
+            connection.setAutoCommit(false);
+            int transactionId = sendMoney(connection, senderId, receiverId, 50,
+                    () -> {
+                        try {
+                            Connection connection2 = ds.getConnection();
+                            try (connection2) {
+                                connection2.setAutoCommit(false);
+                                int transactionId1 = sendMoney(connection2,
+                                        senderId, receiverId, 19, () -> {});
+                                connection2.commit();
+                            } catch (SQLException e) {
+                                connection2.rollback();
+                            }
+                        } catch (SQLException e) {
+                            e.printStackTrace();
+                        }
+                    });
+            connection.commit();
         } catch (SQLException e) {
-            connection1.rollback();
+            connection.rollback();
         }
 
 
-        Connection connection2 = ds.getConnection();
-
-        try (connection2) {
-            connection2.setAutoCommit(false);
-
-            Connection connection3 = ds.getConnection();
-            try (connection3) {
-                connection3.setAutoCommit(false);
-                connection3.setTransactionIsolation(Connection.TRANSACTION_READ_COMMITTED);
-
-                Integer connection3BalanceBefore = getBalance(connection3, senderId);
-                System.out.println("connection3BalanceBefore = " + connection3BalanceBefore);
-
-                try (PreparedStatement stmt = connection2.prepareStatement(
-                        "update users set balance = (balance - ?) where id = ?")) {
-                    stmt.setInt(1, 99);
-                    stmt.setInt(2, senderId);
-                    stmt.executeUpdate();
-                }
-
-                connection2.commit();
-
-                Integer connection3BalanceAfter = getBalance(connection3, senderId);
-                System.out.println("connection3BalanceAfter = " + connection3BalanceAfter);
-                connection3.commit();
-            }
-
-
-        } catch (SQLException e) {
-            connection2.rollback();
-        }
+        int senderBalance = getBalance(senderId);
+        System.out.println("senderBalance = " + senderBalance);
     }
 
-    private static int createUser(Connection connection) throws SQLException {
+    private static Integer getBalance(int userId) throws SQLException {
+        Connection connection = ds.getConnection();
+        Integer balance = null;
+
+        try (connection; PreparedStatement stmt = connection.prepareStatement(
+                "select balance" +
+                " " +
+                "from users where id = ?")) {
+
+            stmt.setInt(1, userId);
+
+            ResultSet resultSet = stmt.executeQuery();
+            while (resultSet.next()) {
+                balance = resultSet.getInt("balance");
+                break;
+            }
+        }
+        return balance;
+    }
+
+
+    private static int createUser() throws SQLException {
+        Connection connection = ds.getConnection();
+
         try (PreparedStatement stmt = connection.prepareStatement("insert into " +
                         "users (first_name, last_name, registration_date) values " +
                         "(?,?,?)"
@@ -80,7 +86,8 @@ public class ApplicationV20 {
     }
 
     private static int sendMoney(Connection connection, int senderId,
-                                 int receiverId, int amount) throws SQLException {
+                                 int receiverId, int amount,
+                                 Runnable parallelAction) throws SQLException {
         try (PreparedStatement stmt = connection.prepareStatement("update users " +
                 "set balance = (balance - ?) where id = ?")) {
             stmt.setInt(1, amount);
@@ -94,6 +101,8 @@ public class ApplicationV20 {
             stmt.setInt(2, receiverId);
             stmt.executeUpdate();
         }
+
+        parallelAction.run();
 
         try (PreparedStatement stmt = connection.prepareStatement("insert into " +
                         "transactions (sender, receiver, amount) values (?,?,?)"
@@ -125,24 +134,5 @@ public class ApplicationV20 {
                         .build();
 
         return dataSource;
-    }
-
-    private static Integer getBalance(Connection connection, int userId) throws SQLException {
-        Integer balance = null;
-
-        try (PreparedStatement stmt = connection.prepareStatement(
-                "select balance" +
-                        " " +
-                        "from users where id = ?")) {
-
-            stmt.setInt(1, userId);
-
-            ResultSet resultSet = stmt.executeQuery();
-            while (resultSet.next()) {
-                balance = resultSet.getInt("balance");
-                break;
-            }
-        }
-        return balance;
     }
 }
