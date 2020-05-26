@@ -7,12 +7,12 @@ import javax.sql.DataSource;
 import java.sql.*;
 import java.time.LocalDateTime;
 
-public class ApplicationV22 {
+public class ApplicationV23 {
 
     private static DataSource ds = createDataSource();
 
     public static void main(String[] args) throws SQLException {
-        // optimistic locking
+        // pessimistic locking
 
         int senderId = createUser();  // default balance = 100
         int senderVersion = getVersion(senderId); // default id = 1;
@@ -24,21 +24,26 @@ public class ApplicationV22 {
         try (connection) {
             connection.setAutoCommit(false);
 
-            try (PreparedStatement stmt = connection.prepareStatement(
-                    "update users set balance = (balance - ?), version = (version" +
-                            " +" +
-                            " 1)" +
-                            " " +
-                            "where id = ? and " +
-                            "version = ?")) {
+            // locking pessimistlickly
+            connection.createStatement().execute("select *" +
+                    " from users for update");
 
-                stmt.setInt(1, amount);
-                stmt.setInt(2, senderId);
-                stmt.setInt(3, senderVersion);
-                final int rowsUpdated = stmt.executeUpdate();
-                if (rowsUpdated == 0) throw new IllegalStateException("Optimistic " +
-                        "Locking Problem");
-                System.out.println("rowsUpdated = " + rowsUpdated);
+
+            Connection connection3 = ds.getConnection();
+            try (connection3) {
+                connection3.setAutoCommit(false);
+                connection3.setTransactionIsolation(Connection.TRANSACTION_READ_UNCOMMITTED);
+
+                try (PreparedStatement stmt = connection3.prepareStatement(
+                        "update users set balance = (balance - ?) where id = ?")) {
+                    stmt.setInt(1, 99);
+                    stmt.setInt(2, senderId);
+                    stmt.executeUpdate();
+                }
+                connection3.commit();
+            } catch (SQLException e) {
+                e.printStackTrace();
+                connection3.rollback();
             }
 
             connection.commit();
