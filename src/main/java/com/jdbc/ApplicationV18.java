@@ -10,27 +10,54 @@ import java.time.LocalDateTime;
 public class ApplicationV18 {
 
     public static void main(String[] args) throws SQLException {
-        // database transactions
+        // read uncommitted
 
         DataSource ds = createDataSource();
 
-        Connection connection = ds.getConnection();
+        int senderId = -1;
+        int receiverId = -1;
 
-        try (connection) {
-            connection.setAutoCommit(false);
+        Connection connection1 = ds.getConnection();
+        try (connection1) {
+            connection1.setAutoCommit(false);
 
-            int senderId = createUser(connection);
-            int receiverId = createUser(connection);
+            senderId = createUser(connection1);
+            receiverId = createUser(connection1);
 
-            Savepoint savepoint = connection.setSavepoint();
-
-            int transactionId = sendMoney(connection, senderId, receiverId, 50);
-            if (transactionId < 0) connection.rollback(savepoint);
-
-            connection.commit();
+            connection1.commit();
         } catch (SQLException e) {
-            connection.rollback();
-            // connection.rollback();
+            connection1.rollback();
+        }
+
+
+        Connection connection2 = ds.getConnection();
+
+        try (connection2) {
+            connection2.setAutoCommit(false);
+
+            Connection connection3 = ds.getConnection();
+            try (connection3) {
+                connection3.setAutoCommit(false);
+
+                Integer connection3BalanceBefore = getBalance(connection3, senderId);
+                System.out.println("connection3BalanceBefore = " + connection3BalanceBefore);
+
+                try (PreparedStatement stmt = connection2.prepareStatement("update" +
+                        " users " +
+                        "set balance = (balance - ?) where id = ?")) {
+                    stmt.setInt(1, 99);
+                    stmt.setInt(2, senderId);
+                    stmt.executeUpdate();
+                }
+
+                Integer connection3BalanceAfter = getBalance(connection3, senderId);
+                System.out.println("connection3BalanceAfter = " + connection3BalanceAfter);
+                connection3.commit();
+            }
+            connection2.commit();
+
+        } catch (SQLException e) {
+            connection2.rollback();
         }
     }
 
@@ -96,5 +123,24 @@ public class ApplicationV18 {
                         .build();
 
         return dataSource;
+    }
+
+    private static Integer getBalance(Connection connection, int userId) throws SQLException {
+        Integer balance = null;
+
+        try (PreparedStatement stmt = connection.prepareStatement(
+                "select balance" +
+                        " " +
+                        "from users where id = ?")) {
+
+            stmt.setInt(1, userId);
+
+            ResultSet resultSet = stmt.executeQuery();
+            while (resultSet.next()) {
+                balance = resultSet.getInt("balance");
+                break;
+            }
+        }
+        return balance;
     }
 }
