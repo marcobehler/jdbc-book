@@ -7,7 +7,7 @@ import javax.sql.DataSource;
 import java.sql.*;
 import java.time.LocalDateTime;
 
-public class ApplicationV18 {
+public class ApplicationV19 {
 
     public static void main(String[] args) throws SQLException {
         // read uncommitted
@@ -38,6 +38,7 @@ public class ApplicationV18 {
             Connection connection3 = ds.getConnection();
             try (connection3) {
                 connection3.setAutoCommit(false);
+                connection3.setTransactionIsolation(Connection.TRANSACTION_READ_UNCOMMITTED);
 
                 Integer connection3BalanceBefore = getBalance(connection3, senderId);
                 System.out.println("connection3BalanceBefore = " + connection3BalanceBefore);
