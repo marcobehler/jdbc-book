@@ -15,3 +15,5 @@ create table if not exists transactions (
      foreign key (sender) references users(id),
      foreign key (receiver) references users(id)
 );
+
+alter table users add column IF NOT EXISTS version int default 1;

@@ -15,27 +15,37 @@ public class ApplicationV22 {
         // database locking
 
         int senderId = createUser();  // default balance = 100
+        int senderVersion = getVersion(senderId); // default id = 1;
         int receiverId = createUser(); // default balance = 100
+
+        int amount = 99;
 
         Connection connection = ds.getConnection();
         try (connection) {
             connection.setAutoCommit(false);
-            int transactionId = sendMoney(connection, senderId, receiverId, 50,
-                    () -> {
-                        try {
-                            Connection connection2 = ds.getConnection();
-                            try (connection2) {
-                                connection2.setAutoCommit(false);
-                                int transactionId1 = sendMoney(connection2,
-                                        senderId, receiverId, 19, () -> {});
-                                connection2.commit();
-                            } catch (SQLException e) {
-                                connection2.rollback();
-                            }
-                        } catch (SQLException e) {
-                            e.printStackTrace();
-                        }
-                    });
+
+            // locking pessimistlickly
+            connection.createStatement().execute("select *" +
+                    " from users for update");
+
+
+            Connection connection3 = ds.getConnection();
+            try (connection3) {
+                connection3.setAutoCommit(false);
+                connection3.setTransactionIsolation(Connection.TRANSACTION_READ_UNCOMMITTED);
+
+                try (PreparedStatement stmt = connection3.prepareStatement(
+                        "update users set balance = (balance - ?) where id = ?")) {
+                    stmt.setInt(1, 99);
+                    stmt.setInt(2, senderId);
+                    stmt.executeUpdate();
+                }
+                connection3.commit();
+            } catch (SQLException e) {
+                e.printStackTrace();
+                connection3.rollback();
+            }
+
             connection.commit();
         } catch (SQLException e) {
             connection.rollback();
@@ -60,6 +70,26 @@ public class ApplicationV22 {
             ResultSet resultSet = stmt.executeQuery();
             while (resultSet.next()) {
                 balance = resultSet.getInt("balance");
+                break;
+            }
+        }
+        return balance;
+    }
+
+    private static Integer getVersion(int userId) throws SQLException {
+        Connection connection = ds.getConnection();
+        Integer balance = null;
+
+        try (connection; PreparedStatement stmt = connection.prepareStatement(
+                "select version" +
+                        " " +
+                        "from users where id = ?")) {
+
+            stmt.setInt(1, userId);
+
+            ResultSet resultSet = stmt.executeQuery();
+            while (resultSet.next()) {
+                balance = resultSet.getInt("version");
                 break;
             }
         }
