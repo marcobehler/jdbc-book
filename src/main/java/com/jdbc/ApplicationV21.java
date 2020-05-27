@@ -28,11 +28,11 @@ public class ApplicationV21 {
                 stmt.executeUpdate();
             }
 
-            Connection connection3 = ds.getConnection();
-            try (connection3) {
-                connection3.setAutoCommit(false);
+            Connection connection2 = ds.getConnection();
+            try (connection2) {
+                connection2.setAutoCommit(false);
 
-                try (PreparedStatement stmt = connection3.prepareStatement(
+                try (PreparedStatement stmt = connection2.prepareStatement(
                         "update users set balance = (balance - ?) where id = ?")) {
                     stmt.setInt(1, transactionAmount);
                     stmt.setInt(2, senderId);
@@ -40,11 +40,13 @@ public class ApplicationV21 {
                 }
 
             } catch (SQLException e) {
-                connection3.rollback();
+                e.printStackTrace();
+                connection2.rollback();
             }
 
             connection.commit();
         } catch (SQLException e) {
+            e.printStackTrace();
             connection.rollback();
         }
 
