@@ -15,27 +15,34 @@ public class ApplicationV21 {
         // database locking
 
         int senderId = createUser();  // default balance = 100
-        int receiverId = createUser(); // default balance = 100
+        int transactionAmount = 50;
 
         Connection connection = ds.getConnection();
         try (connection) {
             connection.setAutoCommit(false);
-            int transactionId = sendMoney(connection, senderId, receiverId, 50,
-                    () -> {
-                        try {
-                            Connection connection2 = ds.getConnection();
-                            try (connection2) {
-                                connection2.setAutoCommit(false);
-                                int transactionId1 = sendMoney(connection2,
-                                        senderId, receiverId, 19, () -> {});
-                                connection2.commit();
-                            } catch (SQLException e) {
-                                connection2.rollback();
-                            }
-                        } catch (SQLException e) {
-                            e.printStackTrace();
-                        }
-                    });
+
+            try (PreparedStatement stmt = connection.prepareStatement(
+                    "update users set balance = (balance - ?) where id = ?")) {
+                stmt.setInt(1, transactionAmount);
+                stmt.setInt(2, senderId);
+                stmt.executeUpdate();
+            }
+
+            Connection connection3 = ds.getConnection();
+            try (connection3) {
+                connection3.setAutoCommit(false);
+
+                try (PreparedStatement stmt = connection3.prepareStatement(
+                        "update users set balance = (balance - ?) where id = ?")) {
+                    stmt.setInt(1, transactionAmount);
+                    stmt.setInt(2, senderId);
+                    stmt.executeUpdate();
+                }
+
+            } catch (SQLException e) {
+                connection3.rollback();
+            }
+
             connection.commit();
         } catch (SQLException e) {
             connection.rollback();
