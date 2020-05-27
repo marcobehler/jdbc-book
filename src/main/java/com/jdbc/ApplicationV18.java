@@ -48,6 +48,8 @@ public class ApplicationV18 {
                     stmt.setInt(2, senderId);
                     stmt.executeUpdate();
                 }
+                // TODO update into receiver's balance
+                // TODO insert into transactions table
 
                 Integer connection3BalanceAfter = getBalance(connection3, senderId);
                 System.out.println("connection3BalanceAfter = " + connection3BalanceAfter);
