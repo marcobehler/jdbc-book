@@ -25,10 +25,8 @@ public class ApplicationV22 {
             connection.setAutoCommit(false);
 
             try (PreparedStatement stmt = connection.prepareStatement(
-                    "update users set balance = (balance - ?), version = (version" +
-                            " +" +
-                            " 1)" +
-                            " " +
+                    "update users set balance = (balance - ?)," +
+                            "version = (version + 1) " +
                             "where id = ? and " +
                             "version = ?")) {
 
