@@ -41,7 +41,8 @@ public class ApplicationV19 {
                 connection3.setTransactionIsolation(Connection.TRANSACTION_READ_UNCOMMITTED);
 
                 Integer connection3BalanceBefore = getBalance(connection3, senderId);
-                System.out.println("connection3BalanceBefore = " + connection3BalanceBefore);
+                System.out.println("connection3BalanceBefore = "
+                        + connection3BalanceBefore);
 
                 try (PreparedStatement stmt = connection2.prepareStatement(
                         "update users set balance = (balance - ?) where id = ?")) {
@@ -49,9 +50,12 @@ public class ApplicationV19 {
                     stmt.setInt(2, senderId);
                     stmt.executeUpdate();
                 }
+                // TODO update into receiver's balance
+                // TODO insert into transactions table
 
                 Integer connection3BalanceAfter = getBalance(connection3, senderId);
-                System.out.println("connection3BalanceAfter = " + connection3BalanceAfter);
+                System.out.println("connection3BalanceAfter = "
+                        + connection3BalanceAfter);
                 connection3.commit();
             }
             connection2.commit();
