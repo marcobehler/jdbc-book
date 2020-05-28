@@ -60,6 +60,7 @@ public class ApplicationV18 {
             connection2.commit();
 
         } catch (SQLException e) {
+            e.printStackTrace();
             connection2.rollback();
         }
     }
@@ -110,10 +111,27 @@ public class ApplicationV18 {
         }
     }
 
+    private static Integer getBalance(Connection connection, int userId) throws SQLException {
+        Integer balance = null;
+
+        try (PreparedStatement stmt = connection.prepareStatement(
+                "select balance " +
+                        "from users where id = ?")) {
+
+            stmt.setInt(1, userId);
+
+            ResultSet resultSet = stmt.executeQuery();
+            while (resultSet.next()) {
+                balance = resultSet.getInt("balance");
+                break;
+            }
+        }
+        return balance;
+    }
+
     private static DataSource createDataSource() {
         HikariDataSource ds = new HikariDataSource();
-        ds.setJdbcUrl("jdbc:h2:~/mydatabase;INIT=RUNSCRIPT FROM 'classpath:schema" +
-                ".sql'");
+        ds.setJdbcUrl("jdbc:h2:~/mydatabase");
         ds.setUsername("sa");
         ds.setPassword("s3cr3tPassword");
 
@@ -126,24 +144,5 @@ public class ApplicationV18 {
                         .build();
 
         return dataSource;
-    }
-
-    private static Integer getBalance(Connection connection, int userId) throws SQLException {
-        Integer balance = null;
-
-        try (PreparedStatement stmt = connection.prepareStatement(
-                "select balance" +
-                        " " +
-                        "from users where id = ?")) {
-
-            stmt.setInt(1, userId);
-
-            ResultSet resultSet = stmt.executeQuery();
-            while (resultSet.next()) {
-                balance = resultSet.getInt("balance");
-                break;
-            }
-        }
-        return balance;
     }
 }

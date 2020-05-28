@@ -60,8 +60,7 @@ public class ApplicationV21 {
         Integer balance = null;
 
         try (connection; PreparedStatement stmt = connection.prepareStatement(
-                "select balance" +
-                " " +
+                "select balance " +
                 "from users where id = ?")) {
 
             stmt.setInt(1, userId);
@@ -129,8 +128,7 @@ public class ApplicationV21 {
 
     private static DataSource createDataSource() {
         HikariDataSource ds = new HikariDataSource();
-        ds.setJdbcUrl("jdbc:h2:~/mydatabase;INIT=RUNSCRIPT FROM 'classpath:schema" +
-                ".sql'");
+        ds.setJdbcUrl("jdbc:h2:~/mydatabase");
         ds.setUsername("sa");
         ds.setPassword("s3cr3tPassword");
 
