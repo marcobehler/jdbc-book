@@ -34,8 +34,8 @@ public class ApplicationV22 {
                 stmt.setInt(2, senderId);
                 stmt.setInt(3, senderVersion);
                 final int rowsUpdated = stmt.executeUpdate();
-                if (rowsUpdated == 0) throw new IllegalStateException("Optimistic " +
-                        "Locking Problem");
+                if (rowsUpdated == 0) throw new RuntimeException("Optimistic " +
+                        "Locking Exception");
                 System.out.println("rowsUpdated = " + rowsUpdated);
             }
 

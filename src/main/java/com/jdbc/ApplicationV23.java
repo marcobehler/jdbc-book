@@ -24,26 +24,24 @@ public class ApplicationV23 {
         try (connection) {
             connection.setAutoCommit(false);
 
-            // locking pessimistlickly
-            connection.createStatement().execute("select *" +
-                    " from users for update");
+            // for update
+            connection.createStatement().execute(
+                    "select * from users for update");
 
+            Connection connection2 = ds.getConnection();
+            try (connection2) {
+                connection2.setAutoCommit(false);
 
-            Connection connection3 = ds.getConnection();
-            try (connection3) {
-                connection3.setAutoCommit(false);
-                connection3.setTransactionIsolation(Connection.TRANSACTION_READ_UNCOMMITTED);
-
-                try (PreparedStatement stmt = connection3.prepareStatement(
+                try (PreparedStatement stmt = connection2.prepareStatement(
                         "update users set balance = (balance - ?) where id = ?")) {
-                    stmt.setInt(1, 99);
+                    stmt.setInt(1, amount);
                     stmt.setInt(2, senderId);
                     stmt.executeUpdate();
                 }
-                connection3.commit();
+                connection2.commit();
             } catch (SQLException e) {
                 e.printStackTrace();
-                connection3.rollback();
+                connection2.rollback();
             }
 
             connection.commit();
