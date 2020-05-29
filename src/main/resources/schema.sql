@@ -7,7 +7,7 @@ create table if not exists users (
 
 alter table users add column IF NOT EXISTS balance int default 100;
 
-create table if not exists transactions (
+create table if not exists transfers (
      id identity not null primary key,
      sender int not null,
      receiver int not null,

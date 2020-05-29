@@ -20,9 +20,9 @@ public class ApplicationV15 {
 
             int senderId = createUser(connection);
             int receiverId = createUser(connection);
-            int transactionId = sendMoney(connection, senderId, receiverId, 50);
+            int transferId = sendMoney(connection, senderId, receiverId, 50);
             System.out.println("Created users with senderId=" + senderId + "," +
-                    "receiverId=" + receiverId + " and transaction with id = " + transactionId);
+                    "receiverId=" + receiverId + " and transfer with id = " + transferId);
 
             connection.commit();
         } catch (SQLException e) {
@@ -63,7 +63,7 @@ public class ApplicationV15 {
         }
 
         try (PreparedStatement stmt = connection.prepareStatement("insert into " +
-                        "transactions (sender, receiver, amount) values (?,?,?)"
+                        "transfers (sender, receiver, amount) values (?,?,?)"
                 , Statement.RETURN_GENERATED_KEYS)) {
             stmt.setInt(1, senderId);
             stmt.setInt(2, receiverId);

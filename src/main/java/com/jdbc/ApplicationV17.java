@@ -24,8 +24,8 @@ public class ApplicationV17 {
 
             Savepoint savepoint = connection.setSavepoint();
 
-            int transactionId = sendMoney(connection, senderId, receiverId, 50);
-            if (transactionId < 0) connection.rollback(savepoint);
+            int transferId = sendMoney(connection, senderId, receiverId, 50);
+            if (transferId < 0) connection.rollback(savepoint);
 
             connection.commit();
         } catch (SQLException e) {
@@ -67,7 +67,7 @@ public class ApplicationV17 {
         }
 
         try (PreparedStatement stmt = connection.prepareStatement("insert into " +
-                        "transactions (sender, receiver, amount) values (?,?,?)"
+                        "transfers (sender, receiver, amount) values (?,?,?)"
                 , Statement.RETURN_GENERATED_KEYS)) {
             stmt.setInt(1, senderId);
             stmt.setInt(2, receiverId);
