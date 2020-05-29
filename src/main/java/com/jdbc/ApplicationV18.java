@@ -10,7 +10,7 @@ import java.time.LocalDateTime;
 public class ApplicationV18 {
 
     public static void main(String[] args) throws SQLException {
-        // read uncommitted
+        // transaction isolation levels
 
         DataSource ds = createDataSource();
 

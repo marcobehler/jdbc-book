@@ -9,7 +9,7 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.time.LocalDateTime;
 
-public class ApplicationV10Point2 {
+public class ApplicationV10_2 {
 
     public static void main(String[] args) throws SQLException {
 
