@@ -1,17 +1,14 @@
 package com.jdbc;
 
 import com.zaxxer.hikari.HikariDataSource;
-import org.w3c.dom.ls.LSOutput;
 
 import javax.sql.DataSource;
 import java.sql.*;
 import java.time.LocalDateTime;
-import java.util.Arrays;
 
 public class ApplicationV10 {
 
     public static void main(String[] args) throws SQLException {
-
         DataSource ds = createDataSource();
 
         try (Connection connection = ds.getConnection()) {
