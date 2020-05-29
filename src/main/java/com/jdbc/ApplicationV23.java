@@ -113,38 +113,6 @@ public class ApplicationV23 {
         }
     }
 
-    private static int sendMoney(Connection connection, int senderId,
-                                 int receiverId, int amount,
-                                 Runnable parallelAction) throws SQLException {
-        try (PreparedStatement stmt = connection.prepareStatement("update users " +
-                "set balance = (balance - ?) where id = ?")) {
-            stmt.setInt(1, amount);
-            stmt.setInt(2, senderId);
-            stmt.executeUpdate();
-        }
-
-        try (PreparedStatement stmt = connection.prepareStatement("update users " +
-                "set balance = (balance + ?) where id = ?")) {
-            stmt.setInt(1, amount);
-            stmt.setInt(2, receiverId);
-            stmt.executeUpdate();
-        }
-
-        parallelAction.run();
-
-        try (PreparedStatement stmt = connection.prepareStatement("insert into " +
-                        "transactions (sender, receiver, amount) values (?,?,?)"
-                , Statement.RETURN_GENERATED_KEYS)) {
-            stmt.setInt(1, senderId);
-            stmt.setInt(2, receiverId);
-            stmt.setInt(3, amount);
-            stmt.executeUpdate();
-
-            final ResultSet keysResultSet = stmt.getGeneratedKeys();
-            keysResultSet.next();
-            return keysResultSet.getInt(1);
-        }
-    }
 
     private static DataSource createDataSource() {
         HikariDataSource ds = new HikariDataSource();
