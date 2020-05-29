@@ -12,6 +12,7 @@ public class ApplicationV8 {
         DataSource ds = createDataSource();
 
         try (Connection connection = ds.getConnection()) {
+
             try (PreparedStatement stmt = connection.prepareStatement("insert into" +
                             " users (first_name, last_name, registration_date) " +
                             "values (?,?,?)"
