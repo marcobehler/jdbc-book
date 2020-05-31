@@ -18,7 +18,7 @@ public class ApplicationV17Solved_Select {
         try (Connection connection = ds.getConnection()) {
 
             try (PreparedStatement stmt = connection.prepareStatement("select * " +
-                    "from users where id = ? or id = ?")) {
+                    "from users where id in (?,?)")) {
 
                 stmt.setInt(1, userId1);
                 stmt.setInt(2, userId2);
