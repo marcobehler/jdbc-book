@@ -12,8 +12,8 @@ public class ApplicationV17Solved_Select {
     public static void main(String[] args) throws SQLException {
         DataSource ds = createDataSource();
 
-        Integer userId1 = 340; // put your own ids here
-        Integer userId2 = 341; // put your own ids here
+        Integer userId1 = 342; // put your own ids here
+        Integer userId2 = 343; // put your own ids here
 
         try (Connection connection = ds.getConnection()) {
 
