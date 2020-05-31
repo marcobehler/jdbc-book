@@ -17,3 +17,5 @@ create table if not exists transfers (
 );
 
 alter table users add column IF NOT EXISTS version int default 1;
+
+alter table transfers add column if not exists reference_id varchar(255) unique;
