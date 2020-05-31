@@ -7,7 +7,7 @@ import javax.sql.DataSource;
 import java.sql.*;
 import java.time.LocalDateTime;
 
-public class ApplicationV17Solved_2 {
+public class ApplicationV17Solved_3 {
 
     public static void main(String[] args) throws SQLException {
         // database transactions
@@ -20,11 +20,12 @@ public class ApplicationV17Solved_2 {
             System.out.println("senderId = " + senderId);
             int receiverId = createUser(connection);
             System.out.println("receiverId = " + receiverId);
-            if (true) {
-                throw new IllegalStateException("database server shutting down");
-            }
+
+            Savepoint sp = connection.setSavepoint();
+
             int transactionId = sendMoney(connection, senderId, receiverId, 50);
             System.out.println("transactionId = " + transactionId);
+            connection.rollback(sp);
 
             connection.commit();
         } catch (SQLException e) {
